@@ -1,0 +1,184 @@
+{% extends "base/base.html" %}
+
+{% block title %}Reader Dashboard - BookShare{% endblock %}
+
+{% block content %}
+<h1><i class="bi bi-speedometer2"></i> Reader Dashboard</h1>
+
+<ul class="nav nav-tabs mt-4 mb-4" id="readerTabs">
+    <li class="nav-item">
+        <button class="nav-link active" id="active-tab" data-bs-toggle="tab" data-bs-target="#active">Active
+            Borrows</button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending">Pending
+            Requests</button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link" id="wishlist-tab" data-bs-toggle="tab" data-bs-target="#wishlist">Wishlist</button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history">Reading
+            History</button>
+    </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade show active" id="active">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Book</th>
+                        <th>Author</th>
+                        <th>Approved</th>
+                        <th>Period</th>
+                        <th>Due Date</th>
+                        <th>Days Remaining</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for borrow in active_borrows %}
+                    <tr>
+                        <td><a href="{% url 'book_detail' borrow.book.pk %}">{{ borrow.book.title }}</a></td>
+                        <td>{{ borrow.book.author.get_full_name }}</td>
+                        <td>{{ borrow.approved_at|date:"M d, Y" }}</td>
+                        <td>{{ borrow.requested_days }} days{% if not borrow.requested_days %}&nbsp;(default){% endif %}
+                        </td>
+                        <td>{{ borrow.due_date }}</td>
+                        <td>
+                            {% if borrow.is_overdue %}
+                            <span class="badge badge-danger">Overdue</span>
+                            {% else %}
+                            <span>{{ borrow.days_remaining }} days</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if borrow.book.pdf_file or borrow.book.file_blob %}
+                            <a href="{% url 'book_viewer' borrow.book.pk %}"
+                                class="btn btn-sm btn-info mb-1 d-block">Read Online</a>
+                            {% endif %}
+                            <form method="post" action="{% url 'borrow_request_return' borrow.pk %}"
+                                style="display: inline-block;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-success">Mark as Returned</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted">No active borrows.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="tab-pane fade" id="pending">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Book</th>
+                        <th>Author</th>
+                        <th>Requested</th>
+                        <th>Duration</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for request in pending_requests %}
+                    <tr>
+                        <td><a href="{% url 'book_detail' request.book.pk %}">{{ request.book.title }}</a></td>
+                        <td>{{ request.book.author.get_full_name }}</td>
+                        <td>{{ request.requested_at|date:"M d, Y" }}</td>
+                        <td>{{ request.requested_days }} days{% if not request.requested_days %}&nbsp;(default){% endif
+                            %}</td>
+                        <td>
+                            {% if request.status == 'pending' %}
+                            <span class="badge badge-warning">Pending</span>
+                            {% elif request.status == 'rejected' %}
+                            <span class="badge badge-danger">Rejected</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if request.status == 'pending' %}
+                            <form method="post" action="{% url 'borrow_request_cancel' request.pk %}"
+                                style="display: inline-block;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-danger"
+                                    onclick="return confirm('Are you sure?')">Cancel</button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% elif %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">No pending requests.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="tab-pane fade" id="wishlist">
+        <div class="row">
+            {% for item in wishlist %}
+            <div class="col-md-3 mb-4">
+                <div class="card book-card h-100">
+                    <div class="book-cover">
+                        {% if item.book.cover_image %}
+                        <img src="{{ item.book.cover_image.url }}" alt="{{ item.book.title }}">
+                        {% else %}
+                        <i class="bi bi-book"></i>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title book-title">{{ item.book.title }}</h5>
+                        <p class="card-text book-author">{{ item.book.author.get_full_name }}</p>
+                        <a href="{% url 'book_detail' item.book.pk %}" class="btn btn-primary btn-sm w-100">View</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-md-12 text-center text-muted">
+                <p>Your wishlist is empty.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="tab-pane fade" id="history">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Book</th>
+                        <th>Author</th>
+                        <th>Added</th>
+                        <th>Completed</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in reading_history %}
+                    <tr>
+                        <td><a href="{% url 'book_detail' item.book.pk %}">{{ item.book.title }}</a></td>
+                        <td>{{ item.book.author.get_full_name }}</td>
+                        <td>{{ item.added_at|date:"M d, Y" }}</td>
+                        <td>{% if item.completed %}{{ item.completed_at|date:"M d, Y" }}{% else %}-{% endif %}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center text-muted">No reading history yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

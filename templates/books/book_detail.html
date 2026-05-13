@@ -1,0 +1,271 @@
+{% extends "base/base.html" %}
+
+{% block title %}{{ book.title }} - BookShare{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-3">
+        <div class="book-cover" style="height: 400px; margin-bottom: 20px;">
+            {% if book.cover_image %}
+            <img src="{{ book.cover_image.url }}" alt="{{ book.title }}">
+            {% else %}
+            <i class="bi bi-book" style="font-size: 6rem;"></i>
+            {% endif %}
+        </div>
+
+        {% if user.is_authenticated %}
+        {% if user.is_author or user.is_admin_user %}
+        <a href="{% url 'book_edit' book.pk %}" class="btn btn-warning btn-sm w-100 mb-2">Edit Book</a>
+        <a href="{% url 'book_delete' book.pk %}" class="btn btn-danger btn-sm w-100 mb-2"
+            onclick="return confirm('Are you sure?')">Delete Book</a>
+        {% endif %}
+
+        <form method="post" action="{% url 'wishlist_toggle' book.pk %}" class="mb-2">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-primary btn-sm w-100">
+                {% if in_wishlist %}
+                <i class="bi bi-heart-fill"></i> Remove from Wishlist
+                {% else %}
+                <i class="bi bi-heart"></i> Add to Wishlist
+                {% endif %}
+            </button>
+        </form>
+
+
+
+        {% endif %}
+
+        <!-- Author info card -->
+        <div class="card mt-3">
+            <div class="card-body text-center">
+                {% if book.author.profile_picture %}
+                <img src="{{ book.author.profile_picture.url }}" class="rounded-circle mb-2"
+                    alt="{{ book.author.get_full_name }}"
+                    style="width:100px;height:100px;object-fit:cover;border:3px solid var(--secondary-color);">
+                {% else %}
+                <i class="bi bi-person-circle" style="font-size:64px;color:var(--secondary-color)"></i>
+                {% endif %}
+                <h5 class="mt-2 mb-0">{{ book.author.get_full_name }}</h5>
+                <p class="text-muted mb-2">@{{ book.author.username }}</p>
+                {% if book.author.bio %}
+                <p class="small" style="color:#2c2c2c;">{{ book.author.bio|truncatewords:30 }}</p>
+                {% endif %}
+                <a href="{% url 'book_search' %}?query={{ book.author.get_full_name|urlencode }}"
+                    class="btn btn-outline-primary btn-sm w-100">View all books by this publisher</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-9">
+        <h1 style="color: #1a1a1a;">{{ book.title }}</h1>
+        <p style="color: #2c2c2c;">by <strong>{{ book.original_author }}</strong></p>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <table class="table table-sm">
+                    <tr>
+                        <th>Author</th>
+                        <td>{{ book.original_author }}</td>
+                    </tr>
+                    <tr>
+                        <th>Genre</th>
+                        <td>{{ book.genre|title }}</td>
+                    </tr>
+                    <tr>
+                        <th>Language</th>
+                        <td>{{ book.language }}</td>
+                    </tr>
+                    <tr>
+                        <th>Published</th>
+                        <td>{{ book.publication_date|date:"M d, Y" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Pages</th>
+                        <td>{{ book.pages|default:"N/A" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Availability</th>
+                        <td>
+                            {% if book.is_available_for_borrowing and book.is_available_for_download %}
+                            <div class="mb-2">
+                                <span class="badge badge-success mb-1">Available for Borrowing</span><br>
+                                <span class="badge badge-info">Available for Download</span>
+                            </div>
+                            {% if user.is_authenticated %}
+                            <div class="d-flex gap-2 mt-2">
+                                {% if user_borrow_request %}
+                                <div class="flex-fill">
+                                    {% if user_borrow_request.status == 'approved' or user_borrow_request.status ==
+                                    'borrowed' %}
+                                    <a href="{% url 'book_viewer' book.pk %}"
+                                        class="btn btn-sm btn-success w-100 d-block">
+                                        <i class="bi bi-book"></i> Read Online
+                                    </a>
+                                    {% else %}
+                                    <a href="{% url 'book_viewer' book.pk %}"
+                                        class="btn btn-sm btn-success w-100 d-block">
+                                        <i class="bi bi-book"></i> Read Online
+                                    </a>
+                                    {% endif %}
+                                </div>
+                                {% else %}
+                                <div class="flex-fill">
+                                    <a href="{% url 'book_viewer' book.pk %}"
+                                        class="btn btn-sm btn-success w-100 d-block">
+                                        <i class="bi bi-book"></i> Read Online
+                                    </a>
+                                </div>
+                                {% endif %}
+                                <div class="flex-fill">
+                                    <a href="{% url 'book_download' book.pk %}"
+                                        class="btn btn-sm btn-primary w-100 d-block">
+                                        <i class="bi bi-download"></i> Download
+                                    </a>
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% endblock %}
+                            <div class="mb-2">
+                                <span class="badge badge-success">Available for Borrowing</span>
+                            </div>
+                            {% if user.is_authenticated %}
+                            <div class="d-flex gap-2 mt-2">
+                                {% if user_borrow_request %}
+                                {% if user_borrow_request.status == 'approved' or user_borrow_request.status ==
+                                'borrowed' %}
+                                <a href="{% url 'book_viewer' book.pk %}" class="btn btn-sm btn-success w-100 mt-2">
+                                    <i class="bi bi-book"></i> Read Online
+                                </a>
+                                {% else %}
+                                <button class="btn btn-sm btn-success w-100 mt-2" disabled>
+                                    <i class="bi bi-hourglass-split"></i> Request Pending
+                                </button>
+                                {% endif %}
+                                {% else %}
+                                <a href="{% url 'borrow_request_create' book.pk %}"
+                                    class="btn btn-sm btn-success w-100 mt-2">
+                                    <i class="bi bi-box-arrow-up-right"></i> Borrow
+                                </a>
+                                {% endif %}
+                            </div>
+                            
+                            
+                            <div class="mb-2">
+                                <span class="badge badge-info">Available for Download</span>
+                            </div>
+                            {% if user.is_authenticated %}
+                            <div class="d-flex gap-2 mt-2">
+                                <div class="flex-fill">
+                                    <a href="{% url 'book_viewer' book.pk %}"
+                                        class="btn btn-sm btn-success w-100 d-block">
+                                        <i class="bi bi-book"></i> Read Online
+                                    </a>
+                                </div>
+                                <div class="flex-fill">
+                                    <a href="{% url 'book_download' book.pk %}"
+                                        class="btn btn-sm btn-primary w-100 mt-2 d-block">
+                                        <i class="bi bi-download"></i> Download
+                                    </a>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="mb-2">
+                                <span class="badge badge-secondary">Currently Unavailable</span>
+                            </div>
+                            {% if user.is_authenticated %}
+                            <div class="d-flex gap-2 mt-2">
+                                <div class="flex-fill">
+                                    <button class="btn btn-sm btn-success w-100" disabled>
+                                        <i class="bi bi-box-arrow-up-right"></i> Borrow
+                                    </button>
+                                </div>
+                                <div class="flex-fill">
+                                    <button class="btn btn-sm btn-primary w-100" disabled>
+                                        <i class="bi bi-download"></i> Download
+                                    </button>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="col-md-6">
+                {% if avg_rating %}
+                <div class="mb-3">
+                    <h5>Rating</h5>
+                    <div class="rating-stars">
+                        {% for i in "12345" %}
+                        {% widthratio avg_rating 1 1 as rounded_rating %}
+                        {% if i|add:0 <= rounded_rating %} <i class="bi bi-star-fill"></i>
+                            {% else %}
+                            <i class="bi bi-star"></i>
+                            {% endif %}
+                            {% endfor %}
+                            <span>{{ avg_rating|floatformat:1 }} ({{ review_count }} reviews)</span>
+                    </div>
+                </div>
+                {% else %}
+                <p><em>No ratings yet</em></p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Description</h5>
+            </div>
+            <div class="card-body">
+                {{ book.description }}
+            </div>
+        </div>
+        <div>
+            
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <h5>Reviews & Ratings</h5>
+            </div>
+            <div class="card-body">
+                {% if user.is_authenticated and not user_review %}
+                <a href="{% url 'review_add' book.pk %}" class="btn btn-primary btn-sm mb-3">Write a Review</a>
+                {% endif %}
+
+                {% for review in reviews %}
+                <div class="mb-3 pb-3 border-bottom">
+                    <div class="d-flex justify-content-between">
+                        <strong>{{ review.reviewer.get_full_name }}</strong>
+                        <div class="rating-stars">
+                            {% for i in "12345" %}
+                            {% if i|add:0 <= review.rating %} <i class="bi bi-star-fill"></i>
+                                {% else %}
+                                <i class="bi bi-star"></i>
+                                {% endif %}
+                                {% endfor %}
+                        </div>
+                    </div>
+                    {% if review.title %}
+                    <h6>{{ review.title }}</h6>
+                    {% endif %}
+                    <p>{{ review.content }}</p>
+                    <small class="text-muted">Posted on {{ review.created_at|date:"M d, Y" }}</small>
+                    {% if user == review.reviewer %}
+                    <div class="mt-2">
+                        <a href="{% url 'review_edit' review.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                        <form method="post" action="{% url 'review_delete' review.pk %}" style="display: inline-block;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                onclick="return confirm('Are you sure?')">Delete</button>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
+                {% empty %}
+                <p class="text-muted">No reviews yet. Be the first to review this book!</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>

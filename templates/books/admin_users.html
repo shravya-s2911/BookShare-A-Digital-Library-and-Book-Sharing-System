@@ -1,0 +1,75 @@
+{% extends "base/base.html" %}
+
+{% block title %}Manage Users - BookShare{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1><i class="bi bi-people-fill"></i> Manage Users</h1>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="card-title">{{ total_users }}</h3>
+                <p class="card-text">Total Users</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="card-title">{{ readers }}</h3>
+                <p class="card-text">Readers</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="card-title">{{ authors }}</h3>
+                <p class="card-text">Authors</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Joined</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user_item in users %}
+                <tr>
+                    <td><strong>{{ user_item.username }}</strong></td>
+                    <td>{{ user_item.email }}</td>
+                    <td>{{ user_item.get_full_name }}</td>
+                    <td><span class="badge badge-primary">{{ user_item.get_role_display }}</span></td>
+                    <td>
+                        {% if user_item.is_approved %}
+                            <span class="badge badge-success">Approved</span>
+                        {% else %}
+                            <span class="badge badge-warning">Pending</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ user_item.created_at|date:"M d, Y" }}</td>
+                    <td>
+                        <a href="{% url 'profile' %}" class="btn btn-sm btn-outline-primary">View Profile</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

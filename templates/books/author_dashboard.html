@@ -1,0 +1,329 @@
+{% extends "base/base.html" %}
+
+{% block title %}Author Dashboard - BookShare{% endblock %}
+
+{% block content %}
+<h1 style="color: #1a1a1a;"><i class="bi bi-speedometer2"></i> Dashboard</h1>
+
+<!-- Quick Stats -->
+<div class="row mt-4 mb-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="card-title" style="color: #1a1a1a;">{{ total_books }}</h3>
+                <p class="card-text" style="color: #2c2c2c;">Published Books</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="card-title" style="color: #1a1a1a;">{{ total_requests }}</h3>
+                <p class="card-text" style="color: #2c2c2c;">Borrow Requests</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="card-title" style="color: #1a1a1a;">{{ active_borrows|length }}</h3>
+                <p class="card-text" style="color: #2c2c2c;">Books Borrowed</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="card-title" style="color: #1a1a1a;">{{ wishlist|length }}</h3>
+                <p class="card-text" style="color: #2c2c2c;">In Wishlist</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tabs for organized sections -->
+<ul class="nav nav-tabs mt-4 mb-4" id="authorTabs" style="border-bottom: 2px solid #3498db;">
+    <li class="nav-item">
+        <button class="nav-link active" id="my-books-tab" data-bs-toggle="tab" data-bs-target="#my-books"
+            style="color: #1a1a1a;">My Published Books</button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link" id="requests-tab" data-bs-toggle="tab" data-bs-target="#requests"
+            style="color: #1a1a1a;">Borrow Requests</button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link" id="borrowed-tab" data-bs-toggle="tab" data-bs-target="#borrowed"
+            style="color: #1a1a1a;">My Borrowed Books</button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending"
+            style="color: #1a1a1a;">Pending Requests</button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link" id="wishlist-tab" data-bs-toggle="tab" data-bs-target="#wishlist"
+            style="color: #1a1a1a;">Wishlist</button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link" id="downloads-tab" data-bs-toggle="tab" data-bs-target="#downloads"
+            style="color: #1a1a1a;">Recent Downloads</button>
+    </li>
+</ul>
+
+<div class="tab-content">
+    <!-- My Published Books Tab -->
+    <div class="tab-pane fade show active" id="my-books">
+        <div class="table-responsive">
+            <table class="table" style="color: #1a1a1a;">
+                <thead>
+                    <tr style="background-color: #f8f9fa;">
+                        <th style="color: #1a1a1a;">Title</th>
+                        <th style="color: #1a1a1a;">Genre</th>
+                        <th style="color: #1a1a1a;">Status</th>
+                        <th style="color: #1a1a1a;">Created</th>
+                        <th style="color: #1a1a1a;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for book in recent_books %}
+                    <tr>
+                        <td><a href="{% url 'book_detail' book.pk %>">{{ book.title }}</a></td>
+                        <td>{{ book.genre|title }}</td>
+                        <td>
+                            <span class="badge badge-{{ book.status }}">{{ book.get_status_display }}</span>
+                        </td>
+                        <td>{{ book.created_at|date:"M d, Y" }}</td>
+                        <td>
+                            <a href="{% url 'book_edit' book.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                            <a href="{% url 'book_delete' book.pk %}" class="btn btn-sm btn-danger"
+                                onclick="return confirm('Are you sure?')">Delete</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center" style="color: #2c2c2c;">No published books yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="mt-3">
+            <a href="{% url 'book_add' %}" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Add New Book</a>
+            <a href="{% url 'author_books' %}" class="btn btn-outline-primary">View All Books</a>
+        </div>
+    </div>
+
+    <!-- Borrow Requests Tab (for author's books) -->
+    <div class="tab-pane fade" id="requests">
+        <div class="table-responsive">
+            <table class="table" style="color: #1a1a1a;">
+                <thead>
+                    <tr style="background-color: #f8f9fa;">
+                        <th style="color: #1a1a1a;">Reader</th>
+                        <th style="color: #1a1a1a;">Book</th>
+                        <th style="color: #1a1a1a;">Requested</th>
+                        <th style="color: #1a1a1a;">Duration</th>
+                        <th style="color: #1a1a1a;">Status</th>
+                        <th style="color: #1a1a1a;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for request in pending_borrow_requests %}
+                    <tr>
+                        <td>{{ request.reader.get_full_name }}</td>
+                        <td><a href="{% url 'book_detail' request.book.pk %}">{{ request.book.title }}</a></td>
+                        <td>{{ request.requested_at|date:"M d, Y" }}</td>
+                        <td>{{ request.requested_days }} days{% if not request.requested_days %}&nbsp;(default){% elif %}</td>
+                        <td><span class="badge badge-pending">{{ request.get_status_display }}</span></td>
+                        <td>
+                            <form method="post" action="{% url 'borrow_request_approve' request.pk %}"
+                                style="display: inline-block;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-success">Approve</button>
+                            </form>
+                            <a href="{% url 'borrow_request_reject' request.pk %}"
+                                class="btn btn-sm btn-danger">Reject</a>
+                        </td>
+                    </tr>
+                    {% elif %}
+                    <tr>
+                        <td colspan="6" class="text-center" style="color: #2c2c2c;">No pending borrow requests.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- My Borrowed Books Tab -->
+    <div class="tab-pane fade" id="borrowed">
+        <div class="table-responsive">
+            <table class="table" style="color: #1a1a1a;">
+                <thead>
+                    <tr style="background-color: #f8f9fa;">
+                        <th style="color: #1a1a1a;">Book</th>
+                        <th style="color: #1a1a1a;">Author</th>
+                        <th style="color: #1a1a1a;">Approved</th>
+                        <th style="color: #1a1a1a;">Period</th>
+                        <th style="color: #1a1a1a;">Due Date</th>
+                        <th style="color: #1a1a1a;">Days Remaining</th>
+                        <th style="color: #1a1a1a;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for borrow in active_borrows %}
+                    <tr>
+                        <td><a href="{% url 'book_detail' borrow.book.pk %}">{{ borrow.book.title }}</a></td>
+                        <td>{{ borrow.book.author.get_full_name }}</td>
+                        <td>{{ borrow.approved_at|date:"M d, Y" }}</td>
+                        <td>{{ borrow.requested_days }} days{% if not borrow.requested_days %}&nbsp;(default){% endif %}
+                        </td>
+                        <td>{{ borrow.due_date }}</td>
+                        <td>
+                            {% if borrow.is_overdue %}
+                            <span class="badge badge-danger">Overdue</span>
+                            {% else %}
+                            <span>{{ borrow.days_remaining }} days</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <form method="post" action="{% url 'borrow_request_return' borrow.pk %}"
+                                style="display: inline-block;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-success">Mark as Returned</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center" style="color: #2c2c2c;">No active borrows.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Pending Requests Tab (from reader) -->
+    <div class="tab-pane fade" id="pending">
+        <div class="table-responsive">
+            <table class="table" style="color: #1a1a1a;">
+                <thead>
+                    <tr style="background-color: #f8f9fa;">
+                        <th style="color: #1a1a1a;">Book</th>
+                        <th style="color: #1a1a1a;">Author</th>
+                        <th style="color: #1a1a1a;">Requested</th>
+                        <th style="color: #1a1a1a;">Status</th>
+                        <th style="color: #1a1a1a;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for request in pending_requests %}
+                    <tr>
+                        <td><a href="{% url 'book_detail' request.book.pk %}">{{ request.book.title }}</a></td>
+                        <td>{{ request.book.author.get_full_name }}</td>
+                        <td>{{ request.requested_at|date:"M d, Y" }}</td>
+                        <td><span class="badge badge-pending">{{ request.get_status_display }}</span></td>
+                        <td>
+                            <a href="{% url 'book_detail' request.book.pk %}" class="btn btn-sm btn-info">View Book</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center" style="color: #2c2c2c;">No pending requests.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Wishlist Tab -->
+    <div class="tab-pane fade" id="wishlist">
+        <div class="row">
+            {% for item in wishlist %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title" style="color: #1a1a1a;">{{ item.book.title }}</h5>
+                        <p class="card-text" style="color: #2c2c2c;">by {{ item.book.author.get_full_name }}</p>
+                        <p class="card-text"><small style="color: #1a1a1a;">{{ item.book.genre|title }}</small></p>
+                        <div class="mt-3">
+                            <a href="{% url 'book_detail' item.book.pk %}" class="btn btn-sm btn-primary">View</a>
+                            <form method="post" action="{% url 'wishlist_toggle' item.book.pk %}"
+                                style="display: inline-block;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-danger">Remove</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <p class="text-center" style="color: #2c2c2c;">No books in wishlist yet.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Recent Downloads Tab -->
+    <div class="tab-pane fade" id="downloads">
+        <div class="table-responsive">
+            <table class="table" style="color: #1a1a1a;">
+                <thead>
+                    <tr style="background-color: #f8f9fa;">
+                        <th style="color: #1a1a1a;">Book</th>
+                        <th style="color: #1a1a1a;">Downloaded By</th>
+                        <th style="color: #1a1a1a;">Date & Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for download in recent_downloads %}
+                    <tr>
+                        <td><a href="{% url 'book_detail' download.book.pk %}">{{ download.book.title }}</a></td>
+                        <td>{{ download.user.get_full_name|default:download.user.username }}</td>
+                        <td>{{ download.downloaded_at|date:"M d, Y H:i" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="text-center" style="color: #2c2c2c;">No downloads yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    .badge-pending {
+        background-color: #f39c12;
+    }
+
+    .badge-approved {
+        background-color: #27ae60;
+    }
+
+    .badge-rejected {
+        background-color: #e74c3c;
+    }
+
+    .badge-draft {
+        background-color: #95a5a6;
+    }
+
+    .nav-tabs {
+        border-bottom: 2px solid #3498db !important;
+    }
+
+    .nav-link {
+        transition: all 0.3s ease;
+    }
+
+    .nav-link.active {
+        background-color: transparent !important;
+        border-bottom: 3px solid #3498db !important;
+        color: #3498db !important;
+    }
+</style>
+{% endblock %}

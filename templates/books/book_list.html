@@ -1,0 +1,96 @@
+{% extends "base/base.html" %}
+
+{% block title %}Books - BookShare{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h1 style="color: #1a1a1a;"><i class="bi bi-book"></i> All Books</h1>
+    </div>
+</div>
+
+<!-- Search Bar -->
+<div class="row mb-4">
+    <div class="col-md-8 offset-md-2">
+        <form method="get" action="{% url 'book_search' %}" class="input-group input-group-lg">
+            <input type="text" name="query" class="form-control" placeholder="Search books by title, author, genre..."
+                style="color: #1a1a1a;">
+            <button class="btn btn-primary" type="submit">
+                <i class="bi bi-search"></i> Search
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    {% for book in books %}
+    <div class="col-md-3 mb-4">
+        <div class="card book-card h-100">
+            <div class="book-cover">
+                {% if book.cover_image %}
+                <img src="{{ book.cover_image.url }}" alt="{{ book.title }}">
+                {% else %}
+                <i class="bi bi-book"></i>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                <h5 class="card-title book-title">{{ book.title }}</h5>
+                <p class="card-text book-author">{{ book.original_author }}</p>
+                <p class="card-text">
+                    <small style="color: #1a1a1a; font-weight: 500;">{{ book.genre|title }}</small>
+                </p>
+                {% if book.reviews.count %}
+                <div class="book-rating">
+                    <i class="bi bi-star-fill"></i>
+                    {{ book.reviews.count }} review{{ book.reviews.count|pluralize }}
+                </div>
+                {% endif %}
+                <div class="mt-3">
+                    <a href="{% url 'book_detail' book.pk %}" class="btn btn-primary btn-sm w-100">View Details</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-md-12">
+        <p class="card-text" style="color: #2c2c2c;">No books available.</p>
+    </div>
+    {% endfor %}
+</div>
+
+{% if page_obj.has_other_pages %}
+<nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page=1">First</a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+        </li>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+        <li class="page-item active">
+            <span class="page-link">{{ num }}</span>
+        </li>
+        {% else %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+        </li>
+        {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

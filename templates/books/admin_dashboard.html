@@ -1,0 +1,233 @@
+{% extends "base/base.html" %}
+
+{% block title %}Admin Dashboard - BookShare{% endblock %}
+
+{% block content %}
+<h1><i class="bi bi-speedometer2"></i> Admin Dashboard</h1>
+<!-- Tabs: Monitor (users/books) and Author View -->
+<ul class="nav nav-tabs mt-4 mb-4" id="adminTabs">
+    <li class="nav-item">
+        <button class="nav-link active" id="monitor-tab" data-bs-toggle="tab" data-bs-target="#monitor">Monitor</button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link" id="author-tab" data-bs-toggle="tab" data-bs-target="#author">Author View</button>
+    </li>
+</ul>
+
+<div class="tab-content">
+    <!-- Monitor Tab -->
+    <div class="tab-pane fade show active" id="monitor">
+        <div class="row mt-2 mb-4">
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h3 class="card-title">{{ total_users }}</h3>
+                        <p class="card-text">Total Users</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h3 class="card-title">{{ total_books }}</h3>
+                        <p class="card-text">Total Books</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h3 class="card-title">{{ pending_book_requests }}</h3>
+                        <p class="card-text">Pending Book Requests</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h3 class="card-title">{{ pending_role_requests }}</h3>
+                        <p class="card-text">Pending Role Requests</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Recent Users</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Username</th>
+                                        <th>Email</th>
+                                        <th>Role</th>
+                                        <th>Joined</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for user_item in recent_users %}
+                                    <tr>
+                                        <td>{{ user_item.username }}</td>
+                                        <td>{{ user_item.email }}</td>
+                                        <td><span class="badge badge-primary">{{ user_item.get_role_display }}</span>
+                                        </td>
+                                        <td>{{ user_item.created_at|date:"M d, Y" }}</td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted">No users yet.</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Recent Books</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Author</th>
+                                        <th>Status</th>
+                                        <th>Added</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for book in recent_books %}
+                                    <tr>
+                                        <td>{{ book.title }}</td>
+                                        <td>{{ book.author.get_full_name }}</td>
+                                        <td><span class="badge badge-{{ book.status }}">{{ book.get_status_display
+                                                }}</span></td>
+                                        <td>{{ book.created_at|date:"M d, Y" }}</td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted">No books yet.</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Prominent action buttons for Monitor -->
+        <div class="row mt-4 mb-2">
+            <div class="col-md-6 mb-2">
+                <a href="{% url 'admin_users' %}" class="btn btn-primary btn-lg w-100">
+                    <i class="bi bi-people-fill"></i> Manage Users
+                </a>
+            </div>
+            <div class="col-md-6 mb-2">
+                <a href="{% url 'admin_role_requests' %}" class="btn btn-warning btn-lg w-100">
+                    <i class="bi bi-shield-lock-fill"></i> Review Role Requests
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Author View Tab (reuses author-dashboard style sections for admin) -->
+    <div class="tab-pane fade" id="author">
+        <!-- Insert author-style dashboard here -->
+        <h4 class="mt-3">Author Style Overview</h4>
+        <div class="row mt-2 mb-4">
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h3 class="card-title">{{ total_books }}</h3>
+                        <p class="card-text">Published Books</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h3 class="card-title">{{ total_requests }}</h3>
+                        <p class="card-text">Borrow Requests</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h3 class="card-title">{{ active_borrows|length }}</h3>
+                        <p class="card-text">Books Borrowed</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h3 class="card-title">{{ wishlist|length }}</h3>
+                        <p class="card-text">In Wishlist</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reuse the author_dashboard tabs layout but keep content concise for admin -->
+        <div class="mt-3 mb-2">
+            <a href="{% url 'admin_book_requests' %}" class="btn btn-primary"><i
+                    class="bi bi-journal-bookmark-fill"></i> Review Book Requests</a>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5>Pending Borrow Requests</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Reader</th>
+                                <th>Book</th>
+                                <th>Requested</th>
+                                <th>Duration</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for request in pending_borrow_requests %}
+                            <tr>
+                                <td>{{ request.reader.get_full_name }}</td>
+                                <td><a href="{% url 'book_detail' request.book.pk %}">{{ request.book.title }}</a></td>
+                                <td>{{ request.requested_at|date:"M d, Y" }}</td>
+                                <td>{{ request.requested_days }} days{% if not request.requested_days
+                                    %}&nbsp;(default){% endfor %}</td>
+                                <td><span class="badge badge-pending">{{ request.get_status_display }}</span></td>
+                            </tr>
+                            {% endblock %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted">No pending borrow requests.</td>
+                            </tr>
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <a href="{% url 'book_add' %}" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Add New Book</a>
+            <a href="{% url 'author_books' %}" class="btn btn-outline-primary">View All Books</a>
+        </div>
+    </div>
+</div>

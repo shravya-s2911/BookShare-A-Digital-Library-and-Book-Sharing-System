@@ -1,0 +1,94 @@
+{% extends "base/base.html" %}
+
+{% block title %}Author Books - BookShare{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1><i class="bi bi-books"></i> My Books</h1>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{% url 'book_add' %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> Add New Book
+        </a>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="card-title">{{ books.count }}</h3>
+                <p class="card-text">Total Books</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="card-title">{{ pending_count }}</h3>
+                <p class="card-text">Pending Approval</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="card-title">{{ approved_count }}</h3>
+                <p class="card-text">Approved</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="card-title">{{ rejected_count }}</h3>
+                <p class="card-text">Rejected</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>Title</th>
+                <th>Genre</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for book in books %}
+                <tr>
+                    <td><strong>{{ book.title }}</strong></td>
+                    <td>{{ book.genre|title }}</td>
+                    <td>
+                        {% if book.status == 'draft' %}
+                            <span class="badge badge-secondary">Draft</span>
+                        {% elif book.status == 'pending' %}
+                            <span class="badge badge-warning">Pending</span>
+                        {% elif book.status == 'approved' %}
+                            <span class="badge badge-success">Approved</span>
+                        {% elif book.status == 'rejected' %}
+                            <span class="badge badge-danger">Rejected</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ book.created_at|date:"M d, Y" }}</td>
+                    <td>
+                        <a href="{% url 'book_detail' book.pk %}" class="btn btn-sm btn-outline-primary">View</a>
+                        <a href="{% url 'book_edit' book.pk %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                        <a href="{% url 'book_delete' book.pk %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure?')">Delete</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted">No books yet. <a href="{% url 'book_add' %}">Add your first book</a></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
