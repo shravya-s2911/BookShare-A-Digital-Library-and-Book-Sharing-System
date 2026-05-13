@@ -1,0 +1,164 @@
+{% extends "base/base.html" %}
+
+{% block title %}Sign In - BookShare{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-5 col-md-6">
+            <div class="card shadow-lg rounded-4 border-0">
+                <div class="card-header bg-gradient rounded-top-4 py-4">
+                    <h2 class="mb-0 text-white"><i class="bi bi-box-arrow-in-right"></i> Welcome Back</h2>
+                    <p class="text-white-50 mb-0 mt-2">Sign in to your BookShare account</p>
+                </div>
+                <div class="card-body p-5">
+                    {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+
+                    <form method="post" novalidate class="needs-validation">
+                        {% csrf_token %}
+
+                        <!-- Username Field -->
+                        <div class="mb-4">
+                            <label for="username" class="form-label fw-semibold">
+                                <i class="bi bi-person-circle"></i> Username
+                            </label>
+                            <input type="text" class="form-control form-control-lg" id="username" name="username"
+                                placeholder="Enter your username" required autofocus>
+                        </div>
+
+                        <!-- Password Field -->
+                        <div class="mb-4">
+                            <label for="password" class="form-label fw-semibold">
+                                <i class="bi bi-lock"></i> Password
+                            </label>
+                            <input type="password" class="form-control form-control-lg" id="password" name="password"
+                                placeholder="Enter your password" required>
+                        </div>
+
+                        <!-- Remember Me Checkbox -->
+                        <div class="mb-4 form-check">
+                            <input type="checkbox" class="form-check-input" id="remember" name="remember">
+                            <label class="form-check-label" for="remember">
+                                Keep me signed in
+                            </label>
+                        </div>
+
+                        <!-- Sign In Button -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg fw-semibold rounded-3 py-3">
+                                <i class="bi bi-box-arrow-in-right"></i> Sign In
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Divider -->
+                    <div class="position-relative my-4">
+                        <hr class="my-0">
+                        <span class="position-absolute top-50 start-50 translate-middle bg-white px-3 text-muted"
+                            style="font-size: 0.85rem;">or</span>
+                    </div>
+
+                    <!-- Register Link -->
+                    <p class="text-center mb-0">
+                        Don't have an account?<br>
+                        <a href="{% url 'register' %}" class="btn btn-outline-primary btn-sm mt-2 rounded-3">
+                            <i class="bi bi-person-plus"></i> Create One Now
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card-header {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    }
+
+    .form-control,
+    .form-select {
+        border: 2px solid #e9ecef;
+        border-radius: 0.5rem;
+        transition: all 0.3s ease;
+        font-size: 0.95rem;
+        color: #1a1a1a;
+    }
+
+    .form-control::placeholder,
+    .form-select::placeholder {
+        color: #666;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: var(--secondary-color);
+        box-shadow: 0 0 0 0.3rem rgba(52, 152, 219, 0.15);
+    }
+
+    .form-control-lg {
+        padding: 0.75rem 1rem;
+    }
+
+    .form-label {
+        color: #1a1a1a;
+        margin-bottom: 0.6rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+    }
+
+    .form-check-label {
+        margin-top: 0.25rem;
+        cursor: pointer;
+        color: #1a1a1a;
+        font-weight: 500;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--secondary-color), #2980b9);
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        background: linear-gradient(135deg, #2980b9, #236fa1);
+    }
+
+    .btn-outline-primary {
+        border-radius: 2rem;
+        border-width: 2px;
+    }
+
+    .card {
+        border-radius: 1rem;
+        overflow: hidden;
+    }
+
+    .rounded-4 {
+        border-radius: 1.5rem;
+    }
+
+    .rounded-top-4 {
+        border-top-left-radius: 1.5rem;
+        border-top-right-radius: 1.5rem;
+    }
+
+    a {
+        color: var(--secondary-color);
+        transition: color 0.3s ease;
+    }
+
+    a:hover {
+        color: #236fa1;
+    }
+</style>
+{% endblock %}

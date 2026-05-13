@@ -1,0 +1,45 @@
+{% extends "base/base.html" %}
+
+{% block title %}Request Role Change - BookShare{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="bi bi-arrow-repeat"></i> Request Role Change</h4>
+            </div>
+            <div class="card-body">
+                <p>Request to change your role in the system. Your request will need to be approved by an administrator.</p>
+                
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.requested_role.id_for_label }}" class="form-label">Requested Role</label>
+                        {{ form.requested_role }}
+                        {% if form.requested_role.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.requested_role.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.reason.id_for_label }}" class="form-label">Reason (optional)</label>
+                        {{ form.reason }}
+                        {% if form.reason.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.reason.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Submit Request</button>
+                    <a href="{% url 'profile' %}" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
