@@ -1,0 +1,21 @@
+{% extends "base/base.html" %}
+
+{% block title %}Request to Borrow - {{ book.title }}{% endblock %}
+
+{% block content %}
+<h2>Borrow "{{ book.title }}"</h2>
+<p>Please choose how long you would like to borrow this book.</p>
+
+<form method="post">
+         {% csrf_token %}
+         <div class="mb-3">
+                  {{ form.duration.label_tag }}
+                  {{ form.duration }}
+                  {% if form.duration.errors %}
+                  <div class="text-danger small">{{ form.duration.errors }}</div>
+                  {% endif %}
+         </div>
+         <button type="submit" class="btn btn-primary">Submit request</button>
+         <a href="{% url 'book_detail' book.pk %}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}
