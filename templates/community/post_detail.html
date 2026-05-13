@@ -1,0 +1,112 @@
+{% extends "base/base.html" %}
+
+{% block title %}{{ post.title }} - BookShare{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-md-9">
+            <h1 style="color: #1a1a1a;">{{ post.title }}</h1>
+            <p style="color: #2c2c2c;">
+                By <strong>{{ post.author.get_full_name }}</strong> in
+                <a href="{% url 'community_detail' post.community.pk %}" style="color: #3498db;">{{ post.community.name
+                    }}</a>
+            </p>
+            <small style="color: #999;">Posted on {{ post.created_at|date:"M d, Y H:i" }}</small>
+        </div>
+        <div class="col-md-3 text-right">
+            {% if post.author == request.user or request.user.is_admin_user %}
+            <a href="{% url 'edit_post' post.pk %}" class="btn btn-sm btn-warning">Edit</a>
+            <form method="post" action="{% url 'delete_post' post.pk %}" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-danger"
+                    onclick="return confirm('Delete this post?')">Delete</button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-9">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <p style="color: #2c2c2c; white-space: pre-wrap;">{{ post.content }}</p>
+                    {% if post.book %}
+                    <div class="alert alert-info mt-4">
+                        <p class="mb-0">
+                            <strong>Related Book:</strong> <a href="{% url 'book_detail' post.book.pk %}">{{
+                                post.book.title }}</a> by {{ post.book.author.get_full_name }}
+                        </p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Comments Section -->
+            <div class="card">
+                <div class="card-header" style="background-color: #3498db; color: white;">
+                    <h5 class="mb-0">Comments ({{ comments.count }})</h5>
+                </div>
+                <div class="card-body">
+                    {% if comments %}
+                    {% for comment in comments %}
+                    <div class="border-bottom pb-4 mb-4">
+                        <p style="color: #1a1a1a;">
+                            <strong>{{ comment.author.get_full_name }}</strong>
+                            <small style="color: #999;">{{ comment.created_at|date:"M d, Y H:i" }}</small>
+                        </p>
+                        <p style="color: #2c2c2c;">{{ comment.content }}</p>
+                        {% if comment.author == request.user or request.user.is_admin_user %}
+                        <div class="mt-2">
+                            <a href="{% url 'edit_comment' comment.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                            <form method="post" action="{% url 'delete_comment' comment.pk %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-danger"
+                                    onclick="return confirm('Delete this comment?')">Delete</button>
+                            </form>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <p style="color: #2c2c2c;">No comments yet. Be the first to comment!</p>
+                    {% endif %}
+
+                    <!-- Comment Form -->
+                    <div class="mt-5 pt-4 border-top">
+                        <h6 style="color: #1a1a1a;">Add a Comment</h6>
+                        <form method="post" novalidate>
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                {{ form.content }}
+                                {% if form.content.errors %}
+                                <div class="invalid-feedback d-block mt-2" style="color: #e74c3c;">
+                                    {{ form.content.errors|first }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            <button type="submit" class="btn btn-primary">Post Comment</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-header" style="background-color: #3498db; color: var(--dark-text);">
+                    <h6 class="mb-0">Post Info</h6>
+                </div>
+                <div class="card-body">
+                    <p style="color: #2c2c2c;"><strong>Community:</strong> <a
+                            href="{% url 'community_detail' post.community.pk %}" style="color: #3498db;">{{
+                            post.community.name }}</a></p>
+                    <p style="color: #2c2c2c;"><strong>Author:</strong> {{ post.author.get_full_name }}</p>
+                    <p style="color: #2c2c2c;"><strong>Comments:</strong> {{ comments.count }}</p>
+                    <p style="color: #2c2c2c;"><strong>Posted:</strong> {{ post.created_at|date:"M d, Y" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

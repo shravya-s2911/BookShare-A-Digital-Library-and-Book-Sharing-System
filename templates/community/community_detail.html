@@ -1,0 +1,124 @@
+{% extends "base/base.html" %}
+
+{% block title %}{{ community.name }} - BookShare{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-md-9">
+            <h1 style="color: #1a1a1a;">{{ community.name }}</h1>
+            <p style="color: #2c2c2c;" class="lead">{{ community.description }}</p>
+            <small style="color: #999;">Created by {{ community.creator.get_full_name }}</small>
+        </div>
+        <div class="col-md-3 text-right">
+            {% if is_member %}
+            <form method="post" style="display: inline;">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="leave">
+                <button type="submit" class="btn btn-danger">
+                    <i class="bi bi-box-arrow-right"></i> Leave Community
+                </button>
+            </form>
+            <a href="{% url 'create_post' community.pk %}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Create Post
+            </a>
+            {% else %}
+            <form method="post" style="display: inline;">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="join">
+                <button type="submit" class="btn btn-success">
+                    <i class="bi bi-check-circle"></i> Join Community
+                </button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-header" style="background-color: #3498db; color: var(--dark-text);">
+                    <h5 class="mb-0">Posts</h5>
+                </div>
+                <div class="card-body">
+                    {% if posts %}
+                    {% for post in posts %}
+                    <div class="border-bottom pb-4 mb-4">
+                        <h5 style="color: #1a1a1a;">
+                            <a href="{% url 'post_detail' post.pk %}" style="color: #3498db; text-decoration: none;">
+                                {{ post.title }}
+                            </a>
+                        </h5>
+                        <p style="color: #2c2c2c;">By {{ post.author.get_full_name }} on {{ post.created_at|date:"M d,
+                            Y" }}</p>
+                        {% if post.book %}
+                        <p style="color: #666;">
+                            <i class="bi bi-book"></i> About: <a href="{% url 'book_detail' post.book.pk %}"
+                                style="color: #3498db;">{{ post.book.title }}</a>
+                        </p>
+                        {% endif %}
+                        <p style="color: #2c2c2c;">{{ post.content|truncatewords:50 }}</p>
+                        <small style="color: #999;">{{ post.comments.count }} comments</small>
+                        <div class="mt-2">
+                            <a href="{% url 'post_detail' post.pk %}" class="btn btn-sm btn-info">View Post</a>
+                            {% if post.author == request.user or request.user.is_admin_user %}
+                            <a href="{% url 'edit_post' post.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                            <form method="post" action="{% url 'delete_post' post.pk %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-danger"
+                                    onclick="return confirm('Delete this post?')">Delete</button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+
+                    <!-- Pagination -->
+                    {% if page_obj.has_other_pages %}
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center">
+                            {% if page_obj.has_previous %}
+                            <li class="page-item"><a class="page-link" href="?page=1">First</a></li>
+                            <li class="page-item"><a class="page-link"
+                                    href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+                            {% endif %}
+                            <li class="page-item active"><span class="page-link">Page {{ page_obj.number }} of {{
+                                    page_obj.paginator.num_pages }}</span></li>
+                            {% if page_obj.has_next %}
+                            <li class="page-item"><a class="page-link"
+                                    href="?page={{ page_obj.next_page_number }}">Next</a></li>
+                            <li class="page-item"><a class="page-link"
+                                    href="?page={{ page_obj.paginator.num_pages }}">Last</a></li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                    {% else %}
+                    <p style="color: #2c2c2c; text-align: center;">No posts yet. Be the first to post!</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-header" style="background-color: #3498db; color: var(--dark-text);">
+                    <h6 class="mb-0">Members ({{ community.members.count }})</h6>
+                </div>
+                <div class="card-body" style="max-height: 300px; overflow-y: auto;">
+                    <ul class="list-unstyled">
+                        {% for member in community.members.all %}
+                        <li class="mb-2" style="color: #2c2c2c;">
+                            {{ member.get_full_name|default:member.username }}
+                            {% if member == community.creator %} <badge
+                                style="background-color: #3498db; color: var(--dark-text); padding: 2px 6px; border-radius: 3px; font-size: 0.75rem;">
+                                Creator</badge>{% endif %}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
