@@ -1,0 +1,540 @@
+{% extends "base/base.html" %}
+
+{% block title %}Create Account - BookShare{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <div class="card shadow-lg rounded-4 border-0 overflow-hidden">
+                <!-- Form Header with Icon -->
+                <div class="card-header bg-gradient rounded-0 py-5 text-center position-relative">
+                    <div class="form-icon mb-3">
+                        <i class="bi bi-person-check-fill"></i>
+                    </div>
+                    <h2 class="mb-0 text-Blue">Create Your Account</h2>
+                    <p class="text-white-50 mb-0 mt-2">Join BookShare to discover and share books</p>
+                </div>
+
+                <div class="card-body p-5">
+                    <form method="post" novalidate class="needs-validation form-grid">
+                        {% csrf_token %}
+                        
+                        <!-- First Name -->
+                        <div class="form-group">
+                            <label for="{{ form.first_name.id_for_label }}" class="form-label fw-semibold">
+                                First Name
+                            </label>
+                            {{ form.first_name }}
+                            {% if form.first_name.errors %}
+                                <div class="invalid-feedback d-block mt-2">
+                                    {{ form.first_name.errors|first }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Last Name -->
+                        <div class="form-group">
+                            <label for="{{ form.last_name.id_for_label }}" class="form-label fw-semibold">
+                                Last Name <span class="text-muted">(optional)</span>
+                            </label>
+                            {{ form.last_name }}
+                            {% if form.last_name.errors %}
+                                <div class="invalid-feedback d-block mt-2">
+                                    {{ form.last_name.errors|first }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Username -->
+                        <div class="form-group">
+                            <label for="{{ form.username.id_for_label }}" class="form-label fw-semibold">
+                                Username
+                            </label>
+                            {{ form.username }}
+                            {% if form.username.errors %}
+                                <div class="invalid-feedback d-block mt-2">
+                                    {{ form.username.errors|first }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Email -->
+                        <div class="form-group">
+                            <label for="{{ form.email.id_for_label }}" class="form-label fw-semibold">
+                                Email Address
+                            </label>
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                                <div class="invalid-feedback d-block mt-2">
+                                    {{ form.email.errors|first }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Password -->
+                        <div class="form-group">
+                            <label for="{{ form.password1.id_for_label }}" class="form-label fw-semibold">
+                                <i class="bi bi-lock"></i> Password
+                            </label>
+                            <div class="password-input-wrapper">
+                                {{ form.password1 }}
+                                <button type="button" class="password-toggle" id="togglePassword1">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                            {% if form.password1.errors %}
+                                <div class="invalid-feedback d-block mt-2">
+                                    {{ form.password1.errors|first }}
+                                </div>
+                            {% endif %}
+                            <!-- Password Requirements Tooltip -->
+                            <div class="password-requirements" id="passwordRequirements">
+                                <div class="requirement-title">Password must contain:</div>
+                                <ul class="requirement-list">
+                                    <li data-requirement="length"><span class="requirement-check">✓</span> At least 8 characters</li>
+                                    <li data-requirement="uppercase"><span class="requirement-check">✓</span> At least one uppercase letter (A-Z)</li>
+                                    <li data-requirement="number"><span class="requirement-check">✓</span> At least one number (0-9)</li>
+                                    <li data-requirement="special"><span class="requirement-check">✓</span> At least one special character (!@#$%^&*)</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Confirm Password -->
+                        <div class="form-group">
+                            <label for="{{ form.password2.id_for_label }}" class="form-label fw-semibold">
+                                <i class="bi bi-lock"></i> Confirm Password
+                            </label>
+                            <div class="password-input-wrapper">
+                                {{ form.password2 }}
+                                <button type="button" class="password-toggle" id="togglePassword2">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                            {% if form.password2.errors %}
+                                <div class="invalid-feedback d-block mt-2">
+                                    {{ form.password2.errors|first }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Role Selection - Full Width -->
+                        <div class="form-group form-group-full">
+                            <label class="form-label fw-semibold d-block mb-3">
+                                <i class="bi bi-shield-lock"></i> Choose Your Role
+                            </label>
+                            <div class="role-selector">
+                                {% for value, label in form.role.field.choices %}
+                                    <div class="role-option">
+                                        <input 
+                                            type="radio" 
+                                            id="role_{{ value }}" 
+                                            name="role" 
+                                            value="{{ value }}"
+                                            {% if form.role.value == value %}checked{% endif %}
+                                            class="role-input"
+                                        >
+                                        <label for="role_{{ value }}" class="role-label">
+                                            {% if value == 'reader' %}
+                                                <i class="bi bi-book-half"></i>
+                                            {% else %}
+                                                <i class="bi bi-pencil-square"></i>
+                                            {% endif %}
+                                            <span class="role-text">{{ label }}</span>
+                                        </label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            {% if form.role.errors %}
+                                <div class="invalid-feedback d-block mt-2">
+                                    {{ form.role.errors|first }}
+                                </div>
+                            {% endif %}
+                            <small class="text-muted d-block mt-2">
+                                <i class="bi bi-info-circle"></i> You can request a role change anytime after creating your account
+                            </small>
+                        </div>
+
+                        <!-- Bio - Full Width -->
+                        <div class="form-group form-group-full">
+                            <label for="{{ form.bio.id_for_label }}" class="form-label fw-semibold">
+                                Bio (optional)
+                            </label>
+                            {{ form.bio }}
+                            {% if form.bio.errors %}
+                                <div class="invalid-feedback d-block mt-2">
+                                    {{ form.bio.errors|first }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Submit Button - Full Width -->
+                        <div class="form-group form-group-full">
+                            <button type="submit" class="btn btn-primary btn-lg fw-semibold rounded-3 py-3 w-100">
+                                <i class="bi bi-check-circle"></i> Create Account
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Divider -->
+                    <div class="position-relative my-4">
+                        <hr class="my-0">
+                        <span class="position-absolute top-50 start-50 translate-middle bg-white px-3 text-muted" style="font-size: 0.85rem;">or</span>
+                    </div>
+
+                    <!-- Login Link -->
+                    <p class="text-center mb-0">
+                        Already have an account?<br>
+                        <a href="{% url 'login' %}" class="btn btn-outline-primary btn-sm mt-2 rounded-3">
+                            <i class="bi bi-box-arrow-in-right"></i> Sign In Here
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-icon {
+        font-size: 3.5rem;
+        color: var(--secondary-color);
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        margin-bottom: 0.5rem;
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    }
+
+    .card-header h2 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+        color: #1a3a52;
+        text-shadow: 0 2px 8px rgba(255, 255, 255, 0.5);
+    }
+
+    .card-header p {
+        font-size: 1rem;
+        font-weight: 400;
+        opacity: 1;
+        color: #1a3a52;
+        text-shadow: 0 1px 4px rgba(255, 255, 255, 0.4);
+    }
+
+    /* Form Grid Layout */
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-group-full {
+        grid-column: 1 / -1;
+    }
+
+    @media (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .form-control, .form-select {
+        border: 2px solid #e9ecef;
+        border-radius: 0.5rem;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+        font-size: 0.95rem;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--secondary-color);
+        box-shadow: 0 0 0 0.3rem rgba(52, 152, 219, 0.15);
+    }
+
+    .form-label {
+        color: #1a1a1a;
+        margin-bottom: 0.6rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+    }
+
+    .form-control, .form-select {
+        color: #1a1a1a;
+    }
+
+    .form-control::placeholder, .form-select::placeholder {
+        color: #666;
+    }
+
+    /* Role Selector Styling */
+    .role-selector {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+    }
+
+    .role-option {
+        position: relative;
+    }
+
+    .role-input {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    .role-label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem 0.75rem;
+        border: 2px solid #e9ecef;
+        border-radius: 0.75rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+        background-color: #f8f9fa;
+        margin-bottom: 0;
+    }
+
+    .role-label i {
+        font-size: 1.5rem;
+        margin-bottom: 0.4rem;
+        color: var(--primary-color);
+    }
+
+    .role-input:checked + .role-label {
+        border-color: var(--secondary-color);
+        background: linear-gradient(135deg, rgba(52, 152, 219, 0.1), rgba(52, 152, 219, 0.05));
+        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2);
+    }
+
+    .role-input:checked + .role-label i {
+        color: var(--secondary-color);
+        transform: scale(1.1);
+    }
+
+    .role-text {
+        font-weight: 600;
+        color: #1a1a1a;
+        font-size: 0.8rem;
+    }
+
+    /* Password Input Wrapper */
+    .password-input-wrapper {
+        position: relative;
+    }
+
+    .password-toggle {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--dark-color);
+        padding: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: color 0.3s ease;
+    }
+
+    .password-toggle:hover {
+        color: var(--secondary-color);
+    }
+
+    .password-toggle i {
+        font-size: 1.1rem;
+    }
+
+    /* Password Requirements Box */
+    .password-requirements {
+        display: none;
+        margin-top: 0.75rem;
+        padding: 1rem;
+        background-color: #f0f7ff;
+        border: 1px solid #d1e7f5;
+        border-radius: 0.5rem;
+        font-size: 0.85rem;
+        animation: slideDown 0.3s ease;
+    }
+
+    .password-requirements.show {
+        display: block;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .requirement-title {
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 0.5rem;
+    }
+
+    .requirement-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .requirement-list li {
+        padding: 0.3rem 0;
+        color: #333;
+        transition: all 0.3s ease;
+    }
+
+    .requirement-list li.met {
+        color: var(--success-color);
+        font-weight: 600;
+    }
+
+    .requirement-check {
+        margin-right: 0.5rem;
+        color: #999;
+        font-weight: bold;
+        transition: color 0.3s ease;
+    }
+
+    .requirement-list li.met .requirement-check {
+        color: var(--success-color);
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--secondary-color), #2980b9);
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        background: linear-gradient(135deg, #2980b9, #236fa1);
+    }
+
+    .btn-outline-primary {
+        border-radius: 2rem;
+        border-width: 2px;
+    }
+
+    .invalid-feedback {
+        color: #e74c3c;
+        font-size: 0.85rem;
+    }
+
+    .card {
+        border-radius: 1rem;
+        overflow: hidden;
+    }
+
+    .rounded-4 {
+        border-radius: 1.5rem;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const password1Input = document.getElementById('{{ form.password1.id_for_label }}');
+        const passwordRequirements = document.getElementById('passwordRequirements');
+        const togglePassword1 = document.getElementById('togglePassword1');
+        const togglePassword2 = document.getElementById('togglePassword2');
+
+        // Show/hide password requirements on focus
+        if (password1Input) {
+            password1Input.addEventListener('focus', function() {
+                passwordRequirements.classList.add('show');
+            });
+
+            password1Input.addEventListener('blur', function() {
+                passwordRequirements.classList.remove('show');
+            });
+
+            // Real-time password validation
+            password1Input.addEventListener('input', function() {
+                const password = this.value;
+                
+                // Check length requirement
+                const lengthMet = password.length >= 8;
+                updateRequirement('length', lengthMet);
+                
+                // Check uppercase requirement
+                const uppercaseMet = /[A-Z]/.test(password);
+                updateRequirement('uppercase', uppercaseMet);
+                
+                // Check number requirement
+                const numberMet = /[0-9]/.test(password);
+                updateRequirement('number', numberMet);
+                
+                // Check special character requirement
+                const specialMet = /[!@#$%^&*()_+\-=\[\]{};:\'",.<>?/\\|`~]/.test(password);
+                updateRequirement('special', specialMet);
+            });
+        }
+
+        // Update requirement UI
+        function updateRequirement(requirement, isMet) {
+            const element = document.querySelector(`li[data-requirement="${requirement}"]`);
+            if (element) {
+                if (isMet) {
+                    element.classList.add('met');
+                } else {
+                    element.classList.remove('met');
+                }
+            }
+        }
+
+        // Toggle password visibility
+        if (togglePassword1) {
+            togglePassword1.addEventListener('click', function(e) {
+                e.preventDefault();
+                const input = document.getElementById('{{ form.password1.id_for_label }}');
+                const icon = this.querySelector('i');
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.remove('bi-eye');
+                    icon.classList.add('bi-eye-slash');
+                } else {
+                    input.type = 'password';
+                    icon.classList.remove('bi-eye-slash');
+                    icon.classList.add('bi-eye');
+                }
+            });
+        }
+
+        if (togglePassword2) {
+            togglePassword2.addEventListener('click', function(e) {
+                e.preventDefault();
+                const input = document.getElementById('{{ form.password2.id_for_label }}');
+                const icon = this.querySelector('i');
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.remove('bi-eye');
+                    icon.classList.add('bi-eye-slash');
+                } else {
+                    input.type = 'password';
+                    icon.classList.remove('bi-eye-slash');
+                    icon.classList.add('bi-eye');
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}
