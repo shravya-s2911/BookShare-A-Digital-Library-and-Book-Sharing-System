@@ -1,0 +1,107 @@
+{% extends "base/base.html" %}
+
+{% block title %}Home - BookShare{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="jumbotron rounded-3 px-4 py-5"
+            style="background: linear-gradient(135deg, #f5f6f7 0%, #3498db 100%); color: white;">
+            <h1 class="display-4"><i class="bi bi-book-fill"></i> Welcome to BookShare</h1>
+            <p class="lead">Your Digital Library - Share, Discover, and Connect Over Books</p>
+            {% if not user.is_authenticated %}
+            <p>
+                <a class="btn btn-light btn-lg" href="{% url 'register' %}" role="button">Get Started</a>
+                <a class="btn btn-outline-light btn-lg" href="{% url 'login' %}" role="button">Sign In</a>
+            </p>
+            {% else %}
+            <p>
+                <a class="btn btn-light btn-lg" href="{% url 'book_list' %}" role="button">Browse Books</a>
+                <a class="btn btn-outline-light btn-lg" href="{% url 'book_search' %}" role="button">Search</a>
+            </p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-4">
+        <a href="{% url 'book_list' %}" class="text-decoration-none">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <i class="bi bi-book-fill" style="font-size: 3rem; color: var(--secondary-color);"></i>
+                    <h5 class="card-title mt-3" style="color: #1a1a1a;">Discover Books</h5>
+                    <p class="card-text" style="color: #2c2c2c;">Browse thousands of books across various genres and
+                        find your next favorite read.</p>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-4">
+        {% if user.is_authenticated %}
+        <a href="{% url 'author_dashboard' %}" class="text-decoration-none">
+            {% else %}
+            <a href="{% url 'register' %}" class="text-decoration-none">
+                {% endif %}
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <i class="bi bi-share-fill" style="font-size: 3rem; color: var(--secondary-color);"></i>
+                        <h5 class="card-title mt-3" style="color: #1a1a1a;">Your Books</h5>
+                        <p class="card-text" style="color: #2c2c2c;">Authors can publish their works and share them with
+                            the community. Readers can borrow books.</p>
+                    </div>
+                </div>
+            </a>
+    </div>
+    <div class="col-md-4">
+        <a href="{% url 'community_hub' %}" class="text-decoration-none">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <i class="bi bi-chat-left-text-fill" style="font-size: 3rem; color: var(--secondary-color);"></i>
+                    <h5 class="card-title mt-3" style="color: #1a1a1a;">Community Hub</h5>
+                    <p class="card-text" style="color: #2c2c2c;">Share your thoughts through discussions and posts.
+                        Connect with other book lovers.</p>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+{% if user.is_authenticated %}
+<div class="row mt-5">
+    <div class="col-md-12">
+        <h2 class="mb-4" style="color: #1a1a1a;">Featured Books</h2>
+    </div>
+    {% for book in featured_books %}
+    <div class="col-md-3 mb-4">
+        <div class="card book-card h-100">
+            <div class="book-cover">
+                {% if book.cover_image %}
+                <img src="{{ book.cover_image.url }}" alt="{{ book.title }}">
+                {% else %}
+                <i class="bi bi-book"></i>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                <h5 class="card-title book-title">{{ book.title }}</h5>
+                <p class="card-text book-author">{{ book.author.get_full_name }}</p>
+                <p class="card-text book-rating">
+                    {% if book.reviews.count %}
+                    <i class="bi bi-star-fill"></i>
+                    {{ book.reviews.count }} review{{ book.reviews.count|pluralize }}
+                    {% else %}
+                    No ratings yet
+                    {% endif %}
+                </p>
+                <a href="{% url 'book_detail' book.pk %}" class="btn btn-primary btn-sm w-100">View Details</a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-md-12">
+        <p class="card-text">No books available yet.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}
