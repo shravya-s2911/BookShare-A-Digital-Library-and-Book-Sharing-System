@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}BookShare - Digital Library{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            /* new palette: slate and coral */
+            --primary-color: #2c3e50;
+            --secondary-color: #e74c3c;
+            --accent-color: #3498db;
+            --success-color: #27ae60;
+            --danger-color: #c0392b;
+            --warning-color: #f39c12;
+
+            --light-bg: #fafafa;
+            --card-bg: #ffffff;
+
+            --dark-text: #2c3e50;
+            --medium-text: #7f8c8d;
+            --light-text: #95a5a6;
+
+            --border-color: #dcdcdc;
+        }
+
+        * {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            background-color: var(--light-bg);
+            color: var(--dark-text);
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        /* ensure any text originally styled white uses dark theme color instead */
+        body * {
+            color: var(--dark-text) !important;
+        }
+
+        /* navbar, header and footer should stay white for contrast */
+        .navbar,
+        .navbar *,
+        header,
+        header * {
+            color: white !important;
+        }
+
+        footer,
+        footer * {
+            color: white !important;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            color: var(--primary-color);
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+        }
+
+        h2 {
+            font-size: 1.75rem;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+        }
+
+        h4 {
+            font-size: 1.25rem;
+        }
+
+        h5 {
+            font-size: 1.1rem;
+        }
+
+        h6 {
+            font-size: 1rem;
+        }
+
+        p,
+        label,
+        span {
+            color: var(--dark-text);
+        }
+
+        a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        a:hover {
+            color: var(--accent-color);
+        }
+
+        /* Navbar */
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #164e7a 100%);
+            box-shadow: 0 4px 12px rgba(30, 58, 95, 0.15);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.4rem;
+            color: var(--light-text) !important;
+            letter-spacing: -0.5px;
+        }
+
+        .navbar-brand i {
+            margin-right: 8px;
+            color: var(--secondary-color);
+        }
+
+        .nav-link {
+            color: var(--light-text) !important;
+            font-weight: 500;
+            margin: 0 8px;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--secondary-color) !important;
+        }
+
+        /* Buttons */
+        .btn {
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        .btn-primary {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .btn-warning {
+            background-color: var(--warning-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-color);
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #059669;
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+
+        .btn-warning {
+            background-color: var(--warning-color);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background-color: #d97706;
+        }
+
+        .btn-outline-primary {
+            color: var(--secondary-color);
+            border: 2px solid var(--secondary-color);
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-lg {
+            padding: 0.65rem 1.5rem;
+            font-size: 1rem;
+        }
+
+        /* Cards */
+        .card {
+            border: none;
+            border-radius: 8px;
+            background-color: var(--card-bg);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-bottom: 1.5rem;
+        }
+
+        .card:hover {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .card-header {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px 8px 0 0;
+            font-weight: 600;
+        }
+
+        .card-body {
+            background-color: var(--card-bg);
+            color: var(--dark-text);
+        }
+
+        /* Tables */
+        .table {
+            color: var(--dark-text);
+        }
+
+        .table thead th {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            font-weight: 600;
+            padding: 1rem 0.75rem;
+        }
+
+        .table tbody td {
+            padding: 0.875rem 0.75rem;
+            border-color: var(--border-color);
+            color: var(--dark-text);
+        }
+
+        .table tbody tr:hover {
+            background-color: rgba(14, 165, 233, 0.05);
+        }
+
+        /* Forms */
+        .form-control,
+        .form-select {
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0.625rem 0.875rem;
+            color: var(--dark-text);
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+            outline: none;
+        }
+
+        .form-control::placeholder {
+            color: var(--light-text);
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--dark-text);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Alerts */
+        .alert {
+            border: none;
+            border-radius: 6px;
+            border-left: 4px solid;
+        }
+
+        .alert-success {
+            background-color: #d1fae5;
+            color: #015a35;
+            border-left-color: var(--success-color);
+        }
+
+        .alert-danger {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border-left-color: var(--danger-color);
+        }
+
+        .alert-warning {
+            background-color: #fef3c7;
+            color: #92400e;
+            border-left-color: var(--warning-color);
+        }
+
+        .alert-info {
+            background-color: #e0f2fe;
+            color: #0c2d6b;
+            border-left-color: var(--secondary-color);
+        }
+
+        /* Badges */
+        .badge {
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .badge-success {
+            background-color: #10b981;
+            color: #ffffff;
+        }
+
+        .badge-info {
+            background-color: #0ea5e9;
+            color: #ffffff;
+        }
+
+        .badge-warning {
+            background-color: #f59e0b;
+            color: #ffffff;
+        }
+
+        .badge-danger {
+            background-color: #ef4444;
+            color: #ffffff;
+        }
+
+        /* Book Cover */
+        .book-cover {
+            height: 280px;
+            background: linear-gradient(135deg, #f0f7fc 0%, #e0f2fe 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: var(--secondary-color);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .book-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Rating Stars */
+        .rating-stars {
+            color: var(--warning-color);
+            font-size: 1.1rem;
+            letter-spacing: 2px;
+        }
+
+        /* Footer */
+        footer {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #164e7a 100%);
+            color: rgba(255, 255, 255, 0.9);
+            padding: 3rem 0 1rem;
+            margin-top: 4rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        footer p,
+        footer a {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        footer a:hover {
+            color: var(--secondary-color);
+        }
+
+        /* Container padding */
+        .container {
+            padding: 2rem 1rem;
+        }
+
+        /* Navigation tabs */
+        .nav-tabs {
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .nav-link {
+            color: var(--primary-color);
+            border: none;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            color: var(--secondary-color);
+            border-bottom-color: var(--secondary-color);
+        }
+
+        .nav-link.active {
+            color: var(--secondary-color);
+            border-bottom-color: var(--secondary-color);
+            background-color: transparent;
+        }
+
+        /* Pagination */
+        .pagination .page-link {
+            color: var(--secondary-color);
+            border-color: var(--border-color);
+            border-radius: 6px;
+            margin: 0 2px;
+        }
+
+        .pagination .page-link:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+            color: white;
+        }
+
+        .pagination .page-item.active .page-link {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+
+        /* Dropdown Menu Styling */
+        .dropdown-menu {
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+            background-color: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            padding: 0.6rem;
+            margin-top: 0.5rem !important;
+            transform-origin: top right;
+        }
+
+        .dropdown-menu.show {
+            animation: dropdownFade 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        .dropdown-menu * {
+            color: var(--dark-text) !important;
+        }
+
+        .dropdown-item {
+            padding: 0.6rem 1.2rem;
+            font-weight: 500;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            margin-bottom: 2px;
+        }
+
+        .dropdown-item:hover,
+        .dropdown-item:focus {
+            background-color: rgba(52, 152, 219, 0.08);
+            color: var(--accent-color) !important;
+            transform: translateX(4px);
+        }
+
+        .dropdown-divider {
+            border-top: 1px solid rgba(0, 0, 0, 0.08) !important;
+            margin: 0.5rem 0;
+            opacity: 1;
+        }
+
+        @keyframes dropdownFade {
+            from {
+                opacity: 0;
+                transform: translateY(-10px) scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Search box */
+        .search-box {
+            background-color: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: white;
+            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .search-box:focus {
+            background-color: rgba(255, 255, 255, 0.25);
+            border-color: var(--secondary-color);
+            color: white;
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2);
+        }
+
+        .search-box::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Text utilities */
+        .text-muted {
+            color: #4b5563 !important;
+        }
+
+        /* Improve secondary color text contrast */
+        .text-secondary {
+            color: var(--dark-text) !important;
+        }
+
+        /* Row spacing */
+        .row {
+            margin-bottom: 1.5rem;
+        }
+
+        /* Spacing consistency */
+        section {
+            padding: 2rem 0;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'home' %}">
+                <i class="bi bi-book"></i>BookShare
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'home' %}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'book_list' %}">Browse</a>
+                    </li>
+                    {% if user.is_reader %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'reader_dashboard' %}">Dashboard</a>
+                    </li>
+                    {% elif user.is_author %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'author_dashboard' %}">Dashboard</a>
+                    </li>
+                    {% elif user.is_admin_user %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'admin_dashboard' %}">Dashboard</a>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'community_hub' %}">Community Hub</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                            data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle"></i>
+                            {{ user.first_name|default:user.username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="{% url 'profile' %}"><i
+                                        class="bi bi-person me-2"></i>Profile</a></li>
+                            {% if user.is_author or user.is_admin_user %}
+                            {% if user.is_admin_user %}
+                            <li><a class="dropdown-item" href="{% url 'admin_dashboard' %}"><i
+                                        class="bi bi-book me-2"></i>My Books</a></li>
+                            {% else %}
+                            <li><a class="dropdown-item" href="{% url 'author_books' %}"><i
+                                        class="bi bi-journal-text me-2"></i>My Books</a></li>
+                            {% endif %}
+                            {% endif %}
+                            {% if not user.is_admin_user %}
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="{% url 'role_change_request' %}"><i
+                                        class="bi bi-arrow-repeat me-2"></i>Request Role Change</a>
+                            </li>
+                            {% endif %}
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item text-danger" href="{% url 'logout' %}"><i
+                                        class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'book_list' %}">Browse Books</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'register' %}">Register</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">Login</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-4">
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <footer class="mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5><i class="bi bi-book"></i> BookShare</h5>
+                    <p>Your digital library for sharing and discovering books</p>
+                </div>
+                <div class="col-md-4">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{% url 'home' %}" class="text-decoration-none">Home</a></li>
+                        <li><a href="{% url 'book_list' %}" class="text-decoration-none">Browse Books</a></li>
+                        {% if user.is_authenticated %}
+                        <li><a href="{% url 'community_hub' %}" class="text-decoration-none">Community Hub</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h5>Support</h5>
+                    <p>Email: info@bookshare.com<br>Phone: +1 (555) 123-4567</p>
+                </div>
+            </div>
+            <hr class="bg-light">
+            <div class="text-center">
+                <p>&copy; 2024 BookShare. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>
